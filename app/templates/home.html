@@ -1,0 +1,57 @@
+
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-glow"></div>
+    <span class="eyebrow">✦ YOUR IDEAS DESERVE A SPACE</span>
+    <h1>Ideas that inspire.<br><span class="gradient-text">Stories that connect.</span></h1>
+    <p>Discover fresh perspectives, explore creative stories and share your own voice with the world.</p>
+    <div class="hero-actions">
+        <a href="/blogs" class="button button-primary">Explore Blogs ↗</a>
+        {% if user %}
+        <a href="/blogs/new" class="button button-ghost">Write a Story ＋</a>
+        {% else %}
+        <a href="/register" class="button button-ghost">Join Blogify</a>
+        {% endif %}
+    </div>
+    <div class="hero-orb orb-one"></div>
+    <div class="hero-orb orb-two"></div>
+</section>
+
+<div class="section-heading">
+    <div>
+        <span class="eyebrow">DISCOVER</span>
+        <h2>Latest stories</h2>
+    </div>
+    <a href="/blogs" class="text-link">View all blogs →</a>
+</div>
+
+<div class="blog-grid">
+    {% for blog in blogs %}
+    <article class="blog-card">
+        {% if blog.image_url %}
+        <img src="{{ blog.image_url }}" class="blog-image" alt="{{ blog.title }}">
+        {% else %}
+        <div class="blog-image image-placeholder">✦</div>
+        {% endif %}
+        <div class="blog-card-body">
+            <span class="category-label">{{ blog.category }}</span>
+            <h3>{{ blog.title }}</h3>
+            <p>{{ blog.content[:135] }}{% if blog.content|length > 135 %}...{% endif %}</p>
+            <div class="blog-meta">
+                <span>By {{ blog.author }}</span>
+                <span>{{ blog.status|capitalize }}</span>
+            </div>
+        </div>
+    </article>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">✧</div>
+        <h3>No stories yet</h3>
+        <p>Be the first to publish a blog on Blogify.</p>
+        {% if user %}<a href="/blogs/new" class="button button-primary">Create a blog</a>{% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

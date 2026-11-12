@@ -1,0 +1,32 @@
+
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="auth-layout">
+    <div class="auth-decoration">
+        <span class="eyebrow">WELCOME BACK</span>
+        <h1>Your ideas.<br><span class="gradient-text">Your space.</span></h1>
+        <p>Log in and continue creating something extraordinary.</p>
+        <div class="auth-orbit">B<span>✦</span></div>
+    </div>
+
+    <form class="glass-form auth-form" method="post" action="/login">
+        <div class="auth-heading">
+            <span class="brand-icon">B</span>
+            <h2>Sign in</h2>
+            <p>Enter your account details to continue.</p>
+        </div>
+
+        {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+
+        <label>Email address</label>
+        <input type="email" name="email" placeholder="you@example.com" required>
+
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter your password" required>
+
+        <button type="submit" class="button button-primary button-full">Login to Blogify ↗</button>
+        <p class="auth-switch">Don't have an account? <a href="/register">Create one</a></p>
+    </form>
+</div>
+{% endblock %}

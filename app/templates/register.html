@@ -1,0 +1,35 @@
+
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="auth-layout">
+    <div class="auth-decoration">
+        <span class="eyebrow">JOIN THE COMMUNITY</span>
+        <h1>Start your<br><span class="gradient-text">next chapter.</span></h1>
+        <p>Create an account, share your perspective and connect through stories.</p>
+        <div class="auth-orbit">B<span>✦</span></div>
+    </div>
+
+    <form class="glass-form auth-form" method="post" action="/register">
+        <div class="auth-heading">
+            <span class="brand-icon">B</span>
+            <h2>Create account</h2>
+            <p>Your blogging journey starts here.</p>
+        </div>
+
+        {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+
+        <label>Full name</label>
+        <input type="text" name="name" placeholder="Your name" required minlength="2" maxlength="60">
+
+        <label>Email address</label>
+        <input type="email" name="email" placeholder="you@example.com" required>
+
+        <label>Password</label>
+        <input type="password" name="password" placeholder="At least 8 characters" required minlength="8">
+
+        <button type="submit" class="button button-primary button-full">Create Account ↗</button>
+        <p class="auth-switch">Already have an account? <a href="/login">Login</a></p>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">CONTROL CENTER</span>
+        <h1>Admin <span class="gradient-text">Dashboard.</span></h1>
+        <p>Welcome back, {{ user.name }}. Here's your platform overview.</p>
+    </div>
+    <span class="admin-badge">✦ ADMIN ACCESS</span>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-icon purple">♙</span>
+        <span class="stat-label">Total Users</span>
+        <strong>{{ stats.total_users }}</strong>
+        <span class="stat-foot">Registered members</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon blue">▤</span>
+        <span class="stat-label">Total Blogs</span>
+        <strong>{{ stats.total_blogs }}</strong>
+        <span class="stat-foot">All blog posts</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon green">✓</span>
+        <span class="stat-label">Published</span>
+        <strong>{{ stats.published_blogs }}</strong>
+        <span class="stat-foot">Visible to readers</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon orange">◷</span>
+        <span class="stat-label">Drafts</span>
+        <strong>{{ stats.draft_blogs }}</strong>
+        <span class="stat-foot">Awaiting publication</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon pink">◈</span>
+        <span class="stat-label">Categories</span>
+        <strong>{{ stats.total_categories }}</strong>
+        <span class="stat-foot">Content collections</span>
+    </div>
+</div>
+
+<div class="dashboard-columns">
+    <section class="panel">
+        <div class="panel-heading">
+            <div><span class="eyebrow">CONTENT</span><h2>Recent blogs</h2></div>
+            <a href="/blogs" class="text-link">Manage all →</a>
+        </div>
+        {% for blog in blogs %}
+        <div class="table-item">
+            <div class="item-avatar">✦</div>
+            <div class="item-info">
+                <strong>{{ blog.title }}</strong>
+                <small>{{ blog.author }} · {{ blog.category }}</small>
+            </div>
+            <span class="status-label {{ blog.status }}">{{ blog.status }}</span>
+            <a href="/blogs/{{ blog._id }}/edit" class="icon-link">↗</a>
+        </div>
+        {% else %}
+        <p class="muted">No blogs available.</p>
+        {% endfor %}
+    </section>
+
+    <section class="panel">
+        <div class="panel-heading">
+            <div><span class="eyebrow">COMMUNITY</span><h2>Recent users</h2></div>
+        </div>
+        {% for member in users %}
+        <div class="table-item">
+            <div class="avatar">{{ member.name[:1]|upper }}</div>
+            <div class="item-info">
+                <strong>{{ member.name }}</strong>
+                <small>{{ member.email }}</small>
+            </div>
+            <span class="role-label">{{ member.role }}</span>
+        </div>
+        {% else %}
+        <p class="muted">No users available.</p>
+        {% endfor %}
+    </section>
+</div>
+
+<div class="quick-actions">
+    <a href="/blogs/new" class="quick-action">＋ <span><strong>Write a blog</strong><small>Create new content</small></span></a>
+    <a href="/categories" class="quick-action">◈ <span><strong>Manage categories</strong><small>Organize your content</small></span></a>
+    <a href="/blogs" class="quick-action">▤ <span><strong>Manage blogs</strong><small>Edit or remove posts</small></span></a>
+</div>
+{% endblock %}

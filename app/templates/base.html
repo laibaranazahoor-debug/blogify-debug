@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="neon">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Blogify{% endblock %} | Blogify</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+        <a href="/" class="brand">
+            <span class="brand-icon">B</span>
+            <span>Blogify<span class="brand-dot">.</span></span>
+        </a>
+
+        <div class="side-label">WORKSPACE</div>
+        <nav class="side-nav">
+            <a href="/" class="nav-link">⌂ <span>Home</span></a>
+            <a href="/blogs" class="nav-link">▤ <span>All Blogs</span></a>
+            <a href="/categories" class="nav-link">◈ <span>Categories</span></a>
+
+            {% if user %}
+            <a href="/blogs/new" class="nav-link">＋ <span>Create Blog</span></a>
+            {% endif %}
+
+            {% if is_admin %}
+            <div class="side-label admin-label">ADMINISTRATION</div>
+            <a href="/dashboard" class="nav-link">▦ <span>Dashboard</span></a>
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="side-label">APPEARANCE</div>
+            <select id="themeSelect" class="theme-select" aria-label="Choose theme">
+                <option value="neon">Neon Night</option>
+                <option value="ocean">Cyber Ocean</option>
+                <option value="violet">Violet Dream</option>
+                <option value="emerald">Emerald Glow</option>
+                <option value="light">Clean Light</option>
+            </select>
+            <div class="sidebar-note">Create something amazing.</div>
+        </div>
+    </aside>
+
+    <main class="main-area">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+            <div class="topbar-title">Your creative space</div>
+            <div class="topbar-actions">
+                <span class="status-pill"><span class="status-dot"></span> System online</span>
+                {% if user %}
+                    <div class="user-chip">
+                        <span class="avatar">{{ user.name[:1]|upper }}</span>
+                        <span>{{ user.name }}</span>
+                    </div>
+                    <a href="/logout" class="button button-ghost button-small">Logout</a>
+                {% else %}
+                    <a href="/login" class="button button-ghost button-small">Login</a>
+                    <a href="/register" class="button button-primary button-small">Get Started</a>
+                {% endif %}
+            </div>
+        </header>
+
+        <section class="page-content">
+            {% block content %}{% endblock %}
+        </section>
+
+        <footer class="footer">
+            <span>© 2026 Blogify</span>
+            <span>Designed to share ideas ✦</span>
+        </footer>
+    </main>
+</div>
+
+<script src="{{ url_for('static', path='js/main.js') }}"></script>
+</body>
+</html>

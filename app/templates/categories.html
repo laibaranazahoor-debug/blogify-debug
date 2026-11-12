@@ -1,0 +1,46 @@
+
+{% extends "base.html" %}
+{% block title %}Categories{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">CONTENT ORGANIZATION</span>
+        <h1>Blog <span class="gradient-text">Categories.</span></h1>
+        <p>Explore and organize stories by topic.</p>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert">{{ error }}</div>
+{% endif %}
+
+{% if is_admin %}
+<form method="post" action="/categories" class="inline-form">
+    <input name="name" placeholder="New category name" minlength="2" maxlength="50" required>
+    <input name="description" placeholder="Short description (optional)">
+    <button class="button button-primary" type="submit">＋ Add Category</button>
+</form>
+{% endif %}
+
+<div class="category-grid">
+    {% for cat in categories %}
+    <div class="category-card">
+        <div class="category-symbol">◈</div>
+        <h3>{{ cat.name }}</h3>
+        <p>{{ cat.description or "Explore stories in this category." }}</p>
+        <a href="/blogs?category={{ cat.name|urlencode }}" class="text-link">Explore stories →</a>
+        {% if is_admin %}
+        <form method="post" action="/categories/{{ cat._id }}/delete" onsubmit="return confirm('Delete this category?')">
+            <button class="danger-link" type="submit">Delete category</button>
+        </form>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">◈</div>
+        <h3>No categories yet</h3>
+        <p>{% if is_admin %}Add your first category above.{% else %}Categories will appear here soon.{% endif %}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

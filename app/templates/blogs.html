@@ -1,0 +1,67 @@
+
+{% extends "base.html" %}
+{% block title %}Blogs{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">THE BLOG LIBRARY</span>
+        <h1>Explore <span class="gradient-text">stories.</span></h1>
+        <p>Find ideas, knowledge and inspiration.</p>
+    </div>
+    {% if user %}
+    <a href="/blogs/new" class="button button-primary">＋ Create Blog</a>
+    {% endif %}
+</div>
+
+<form class="filter-bar" method="get" action="/blogs">
+    <input type="search" name="search" placeholder="Search title, content or tags..." value="{{ search }}">
+    <select name="category">
+        <option value="">All categories</option>
+        {% for cat in categories %}
+        <option value="{{ cat.name }}" {% if selected_category == cat.name %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+    </select>
+    <button class="button button-primary" type="submit">Search</button>
+</form>
+
+<div class="blog-grid">
+    {% for blog in blogs %}
+    <article class="blog-card">
+        {% if blog.image_url %}
+        <img src="{{ blog.image_url }}" class="blog-image" alt="{{ blog.title }}">
+        {% else %}
+        <div class="blog-image image-placeholder">✦</div>
+        {% endif %}
+        <div class="blog-card-body">
+            <div class="card-topline">
+                <span class="category-label">{{ blog.category }}</span>
+                {% if is_admin %}<span class="status-label">{{ blog.status }}</span>{% endif %}
+            </div>
+            <h3>{{ blog.title }}</h3>
+            <p>{{ blog.content[:150] }}{% if blog.content|length > 150 %}...{% endif %}</p>
+            <div class="tag-list">
+                {% for tag in blog.tags or [] %}<span>#{{ tag }}</span>{% endfor %}
+            </div>
+            <div class="blog-meta">
+                <span>By {{ blog.author }}</span>
+                {% if user and (user.id == blog.author_id or is_admin) %}
+                <div class="card-actions">
+                    <a href="/blogs/{{ blog._id }}/edit">Edit</a>
+                    <form method="post" action="/blogs/{{ blog._id }}/delete" onsubmit="return confirm('Delete this blog?')">
+                        <button class="danger-link" type="submit">Delete</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">⌕</div>
+        <h3>No matching blogs</h3>
+        <p>Try another search or category.</p>
+        <a href="/blogs" class="button button-ghost">Clear filters</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

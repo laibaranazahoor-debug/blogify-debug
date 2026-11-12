@@ -1,0 +1,52 @@
+
+{% extends "base.html" %}
+{% block title %}Create Blog{% endblock %}
+{% block content %}
+<div class="form-page">
+    <div class="form-intro">
+        <span class="eyebrow">CREATE SOMETHING NEW</span>
+        <h1>Write your <span class="gradient-text">story.</span></h1>
+        <p>Turn your ideas into something worth sharing.</p>
+    </div>
+    <form class="glass-form" method="post" action="/blogs/new">
+        <label>Blog title</label>
+        <input name="title" type="text" placeholder="Give your story a title..." required minlength="3">
+
+        <label>Content</label>
+        <textarea name="content" rows="9" placeholder="Start writing your story..." required minlength="10"></textarea>
+
+        <div class="form-row">
+            <div>
+                <label>Category</label>
+                <select name="category" required>
+                    <option value="">Choose category</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.name }}">{{ cat.name }}</option>
+                    {% endfor %}
+                    {% if not categories %}
+                    <option value="General">General</option>
+                    {% endif %}
+                </select>
+            </div>
+            <div>
+                <label>Tags</label>
+                <input name="tags" placeholder="technology, coding, ideas">
+            </div>
+        </div>
+
+        <label>Cover image URL <span class="muted">(optional)</span></label>
+        <input name="image_url" type="url" placeholder="https://example.com/image.jpg">
+
+        <label>Publication status</label>
+        <select name="status">
+            <option value="draft">Save as draft</option>
+            <option value="published">Publish now</option>
+        </select>
+
+        <div class="form-actions">
+            <a href="/blogs" class="button button-ghost">Cancel</a>
+            <button type="submit" class="button button-primary">Create Blog ↗</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
