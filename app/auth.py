@@ -29,6 +29,7 @@ def require_admin(request: Request):
     user = get_current_user(request)
 
     if user.get("role") != "admin":
+        
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required"
