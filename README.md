@@ -1,52 +1,70 @@
-# Blogify – Blogging Platform with Admin Panel
+# Blogify – Role-Based Blogging Platform
 
 ## About the Project
 
-Blogify is a blogging platform that I developed as part of my internship task. The main purpose of this project is to create a platform where users can register, log in, write blogs, manage their posts and explore content shared by others.
+Blogify is a full-stack blogging platform developed as part of my internship assignment. It allows users to register, log in, create and explore blog posts, while providing role-based access control to manage platform activities securely.
 
-I used FastAPI for the backend, MongoDB Atlas for database storage and HTML, CSS, JavaScript and Jinja2 for the frontend. I also added an admin panel to manage the platform and view important statistics.
+The application is built using **FastAPI**, **MongoDB Atlas**, **HTML**, **CSS**, **JavaScript**, and **Jinja2**. It includes user authentication, blog and category management, an admin dashboard, and separate permissions for Admin, Moderator, and Writer roles.
 
 ## Features
 
-### User Authentication
+### 1. User Authentication
 - User registration and login
 - Secure password hashing
 - Session-based authentication
 - User logout
-- Different access levels for users and admins
+- Role-based access control (RBAC)
+- Protected pages and operations
 
-### Blog Management
-- Create new blogs
+### 2. Role-Based Access Control
+
+Blogify supports three user roles:
+
+| Feature | Admin | Moderator | Writer |
+|---|---|---|---|
+| Create blog posts | Yes | No | Yes |
+| View blog posts | Yes | Yes | Yes |
+| Edit blog posts | Yes | Yes | No |
+| Delete blog posts | Yes | Yes | No |
+| Manage users | Yes | No | No |
+| Change user roles | Yes | No | No |
+| Access admin dashboard | Yes | Yes | No |
+
+Permissions are enforced on the server side, not only by hiding frontend buttons.
+
+### 3. Blog Management
+- Create new blog posts
 - View published blogs
-- Edit and delete your own blogs
-- Save blogs as drafts
-- Publish blogs
-- Add categories, tags and image URLs
-- Search blogs by title, content and tags
-- Filter blogs by category
+- Save posts as drafts
+- Publish blog posts
+- Edit and delete posts according to user permissions
+- Add categories, tags, and image URLs
+- Search by title, content, and tags
+- Filter posts by category
 
-### Category Management
+### 4. Category Management
 - Create categories
 - View available categories
-- Delete categories through the admin panel
+- Delete categories through the management interface
 - Manage categories through API endpoints
 
-### Admin Panel
-- Admin-only dashboard
-- View total registered users
-- View total blogs
-- Check published blogs and drafts
-- View total categories
-- View recent blogs and registered users
-- Manage blog content through admin API endpoints
+### 5. Admin Panel and User Management
+- Role-based dashboard access
+- View registered users
+- View total blogs and categories
+- View published posts and drafts
+- Create user accounts
+- Change user roles
+- Delete users
+- Protect important administrative operations
 
-### Frontend
+### 6. Frontend
 - Modern neon-inspired interface
-- Multiple themes
-- Dark and light appearance options
+- Dark and light themes
+- Multiple theme options
 - Theme preference saved in the browser
-- Responsive layout for different screen sizes
-- Jinja2 templates for dynamic pages
+- Responsive layout
+- Dynamic pages using Jinja2 templates
 
 ## Technologies Used
 
@@ -60,7 +78,7 @@ I used FastAPI for the backend, MongoDB Atlas for database storage and HTML, CSS
 | CSS | Styling and themes |
 | JavaScript | Frontend interactions |
 | Jinja2 | Dynamic HTML rendering |
-| Uvicorn | Local development server |
+| Uvicorn | Application server |
 | Pydantic | Data validation |
 
 ## Project Structure
@@ -91,14 +109,14 @@ Blogify/
 │   │   ├── edit_blog.html
 │   │   ├── categories.html
 │   │   ├── login.html
-│   │   └── register.html
+│   │   ├── register.html
+│   │   └── users.html
 │   │
 │   ├── auth.py
 │   ├── database.py
 │   ├── main.py
 │   └── schemas.py
 │
-├── .env
 ├── .env.example
 ├── .gitignore
 ├── requirements.txt
@@ -110,13 +128,13 @@ Blogify/
 ### 1. Clone the Repository
 
 ```bash
-git clone YOUR_GITHUB_REPOSITORY_URL
+git clone https://github.com/laibaranazahoor-debug/blogify-debug.git
 ```
 
 ### 2. Open the Project Folder
 
 ```bash
-cd blogify
+cd blogify-debug
 ```
 
 ### 3. Create a Virtual Environment
@@ -141,7 +159,7 @@ pip install -r requirements.txt
 
 ### 6. Configure Environment Variables
 
-Create a `.env` file in the main project folder and add your MongoDB Atlas connection details.
+Create a `.env` file in the main project directory and configure your MongoDB Atlas connection:
 
 ```env
 MONGODB_URL=your_mongodb_atlas_connection_string
@@ -149,9 +167,9 @@ DATABASE_NAME=blogify_database
 SECRET_KEY=your_secure_secret_key
 ```
 
-Replace the placeholder values with your own configuration.
+Replace the placeholder values with your own credentials.
 
-**Note:** Never upload your actual `.env` file or database credentials to GitHub.
+**Security Note:** Never upload your actual `.env` file, database credentials, or secret keys to GitHub.
 
 ### 7. Run the Application
 
@@ -161,7 +179,7 @@ python -m uvicorn app.main:app --reload --port 8000
 
 ## Application URLs
 
-After running the application locally, you can access:
+After starting the application locally:
 
 | Page | URL |
 |---|---|
@@ -171,7 +189,8 @@ After running the application locally, you can access:
 | Blogs | http://127.0.0.1:8000/blogs |
 | Create Blog | http://127.0.0.1:8000/blogs/new |
 | Categories | http://127.0.0.1:8000/categories |
-| Admin Dashboard | http://127.0.0.1:8000/dashboard |
+| Dashboard | http://127.0.0.1:8000/dashboard |
+| User Management | http://127.0.0.1:8000/admin/users |
 | API Documentation | http://127.0.0.1:8000/docs |
 | Health Check | http://127.0.0.1:8000/health |
 
@@ -183,7 +202,7 @@ After running the application locally, you can access:
 |---|---|---|
 | POST | `/api/users/register` | Register a new user |
 | POST | `/api/users/login` | Login user |
-| GET | `/api/users/me` | Get current user |
+| GET | `/api/users/me` | Get current user details |
 | POST | `/api/users/logout` | Logout user |
 
 ### Blogs
@@ -191,8 +210,8 @@ After running the application locally, you can access:
 | Method | Endpoint | Description |
 |---|---|---|
 | POST | `/api/blogs/` | Create a blog |
-| GET | `/api/blogs/` | Get all published blogs |
-| GET | `/api/blogs/mine` | Get your blogs |
+| GET | `/api/blogs/` | Get published blogs |
+| GET | `/api/blogs/mine` | Get current user's blogs |
 | GET | `/api/blogs/{blog_id}` | Get a specific blog |
 | PUT | `/api/blogs/{blog_id}` | Update a blog |
 | DELETE | `/api/blogs/{blog_id}` | Delete a blog |
@@ -209,43 +228,40 @@ After running the application locally, you can access:
 
 ### Admin
 
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/admin/dashboard` | Get dashboard statistics |
-| GET | `/api/admin/users` | Get all users |
-| GET | `/api/admin/blogs` | Get all blogs |
-| PUT | `/api/admin/blogs/{blog_id}/status` | Update blog status |
-| DELETE | `/api/admin/blogs/{blog_id}` | Delete a blog |
+The administrative interface provides dashboard statistics and user management. Administrative API routes are available through the application.
+
+Refer to `/docs` for the registered API routes and their request details.
 
 ## Database
 
-I used MongoDB Atlas as the cloud database for this project.
+MongoDB Atlas is used as the cloud database.
 
 The main collections are:
 
-- `users` – Stores registered user information and password hashes.
-- `blogs` – Stores blog posts, categories, tags and publication status.
-- `categories` – Stores blog categories and their descriptions.
+- `users` – Stores user information, password hashes, and roles.
+- `blogs` – Stores blog posts, authors, categories, tags, and publication status.
+- `categories` – Stores blog categories and descriptions.
 
 ## Learning Outcomes
 
-While developing Blogify, I got practical experience with:
+During this project, I gained practical experience in:
 
-- Building REST APIs using FastAPI
-- Connecting Python applications with MongoDB Atlas
-- Implementing user authentication and authorization
+- Building REST APIs with FastAPI
+- Connecting applications to MongoDB Atlas
+- Implementing authentication and role-based authorization
 - Performing CRUD operations
 - Working with Jinja2 templates
-- Creating dynamic frontend pages
+- Developing dynamic frontend pages
 - Managing environment variables
-- Organizing a backend project into separate modules
+- Organizing a modular backend application
+- Implementing Admin, Moderator, and Writer permissions
 
 ## Project Status
 
-This project was developed as an internship assignment. It includes the blogging API, user authentication, category management and an admin dashboard with a Jinja2-based frontend.
+Blogify is an internship project featuring a blogging platform with user authentication, role-based access control, blog and category management, user administration, and a responsive frontend.
 
 ---
 
 **Developed by:** Laiba Zahoor  
-**Project:** Blogify – Blogging Platform with Admin Panel  
-**Technology:** FastAPI, Python, MongoDB Atlas and Jinja2
+**Project:** Blogify – Role-Based Blogging Platform  
+**Technologies:** Python, FastAPI, MongoDB Atlas, HTML, CSS, JavaScript, and Jinja2
