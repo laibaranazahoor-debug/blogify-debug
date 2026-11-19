@@ -5,7 +5,12 @@ from fastapi import APIRouter, HTTPException, status, Request
 
 from app.database import users_collection
 from app.schemas import UserRegister, UserLogin
-from app.auth import hash_password, verify_password, get_current_user
+from app.auth import (
+    hash_password,
+    verify_password,
+    get_current_user,
+    normalize_role
+)
 
 router = APIRouter(
     prefix="/api/users",
@@ -17,8 +22,10 @@ router = APIRouter(
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 def register_user(user: UserRegister):
 
+    email = user.email.lower().strip()
+
     existing_user = users_collection.find_one({
-        "email": user.email.lower()
+        "email": email
     })
 
     if existing_user:
@@ -28,10 +35,10 @@ def register_user(user: UserRegister):
         )
 
     new_user = {
-        "name": user.name,
-        "email": user.email.lower(),
+        "name": user.name.strip(),
+        "email": email,
         "password": hash_password(user.password),
-        "role": "user",
+        "role": "writer",
         "created_at": datetime.now(timezone.utc)
     }
 
@@ -40,9 +47,9 @@ def register_user(user: UserRegister):
     return {
         "message": "Registration successful",
         "user_id": str(result.inserted_id),
-        "name": user.name,
-        "email": user.email.lower(),
-        "role": "user"
+        "name": new_user["name"],
+        "email": email,
+        "role": "writer"
     }
 
 
@@ -50,8 +57,10 @@ def register_user(user: UserRegister):
 @router.post("/login")
 def login_user(user: UserLogin, request: Request):
 
+    email = user.email.lower().strip()
+
     existing_user = users_collection.find_one({
-        "email": user.email.lower()
+        "email": email
     })
 
     if not existing_user or not verify_password(
@@ -63,11 +72,24 @@ def login_user(user: UserLogin, request: Request):
             detail="Invalid email or password"
         )
 
+    # Convert old "user" accounts to "writer"
+    role = normalize_role(existing_user.get("role", "writer"))
+
+    # Update old role in MongoDB
+    if existing_user.get("role") != role:
+        users_collection.update_one(
+            {"_id": existing_user["_id"]},
+            {"$set": {"role": role}}
+        )
+
+    # Clear previous session
+    request.session.clear()
+
     session_user = {
         "id": str(existing_user["_id"]),
         "name": existing_user["name"],
         "email": existing_user["email"],
-        "role": existing_user["role"]
+        "role": role
     }
 
     request.session["user"] = session_user

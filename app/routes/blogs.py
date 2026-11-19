@@ -8,8 +8,12 @@ from fastapi import APIRouter, HTTPException, Request, status
 
 from app.database import blogs_collection
 from app.schemas import BlogCreate, BlogUpdate
-from app.auth import get_current_user
-
+from app.auth import (
+    get_current_user,
+    require_writer_or_admin,
+    require_content_manager,
+    normalize_role
+)
 
 router = APIRouter(
     prefix="/api/blogs",
@@ -17,17 +21,17 @@ router = APIRouter(
 )
 
 
-# Convert MongoDB document into JSON-friendly response
+# CONVERT MONGODB DOCUMENT INTO JSON-FRIENDLY RESPONSE
 def serialize_blog(blog):
     blog["id"] = str(blog.pop("_id"))
     return blog
 
 
-# CREATE BLOG
+# CREATE BLOG - ADMIN AND WRITER
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_blog(blog: BlogCreate, request: Request):
 
-    user = get_current_user(request)
+    user = require_writer_or_admin(request)
 
     new_blog = blog.model_dump()
 
@@ -48,7 +52,7 @@ def create_blog(blog: BlogCreate, request: Request):
     }
 
 
-# GET ALL PUBLISHED BLOGS
+# GET ALL PUBLISHED BLOGS - PUBLIC
 @router.get("/")
 def get_all_blogs(
     search: Optional[str] = None,
@@ -59,6 +63,7 @@ def get_all_blogs(
 
     if search:
         safe_search = re.escape(search)
+
         query["$or"] = [
             {"title": {"$regex": safe_search, "$options": "i"}},
             {"content": {"$regex": safe_search, "$options": "i"}},
@@ -118,10 +123,21 @@ def get_blog(blog_id: str, request: Request):
 
     user = request.session.get("user")
 
-    if blog["status"] != "published":
-        if not user or (
-            user["id"] != blog["author_id"]
-            and user["role"] != "admin"
+    # Drafts are visible to Admin and Moderator,
+    # and to the Writer who created the draft.
+    if blog.get("status") != "published":
+
+        if not user:
+            raise HTTPException(
+                status_code=403,
+                detail="You cannot access this draft"
+            )
+
+        role = normalize_role(user.get("role", "writer"))
+
+        if (
+            role not in ["admin", "moderator"]
+            and user["id"] != blog.get("author_id")
         ):
             raise HTTPException(
                 status_code=403,
@@ -131,7 +147,7 @@ def get_blog(blog_id: str, request: Request):
     return serialize_blog(blog)
 
 
-# UPDATE BLOG
+# UPDATE BLOG - ADMIN AND MODERATOR
 @router.put("/{blog_id}")
 def update_blog(
     blog_id: str,
@@ -139,7 +155,7 @@ def update_blog(
     request: Request
 ):
 
-    user = get_current_user(request)
+    user = require_content_manager(request)
 
     if not ObjectId.is_valid(blog_id):
         raise HTTPException(
@@ -155,15 +171,6 @@ def update_blog(
         raise HTTPException(
             status_code=404,
             detail="Blog not found"
-        )
-
-    if (
-        existing_blog["author_id"] != user["id"]
-        and user["role"] != "admin"
-    ):
-        raise HTTPException(
-            status_code=403,
-            detail="You cannot edit this blog"
         )
 
     update_data = blog_data.model_dump(exclude_unset=True)
@@ -191,11 +198,11 @@ def update_blog(
     }
 
 
-# DELETE BLOG
+# DELETE BLOG - ADMIN AND MODERATOR
 @router.delete("/{blog_id}")
 def delete_blog(blog_id: str, request: Request):
 
-    user = get_current_user(request)
+    user = require_content_manager(request)
 
     if not ObjectId.is_valid(blog_id):
         raise HTTPException(
@@ -211,15 +218,6 @@ def delete_blog(blog_id: str, request: Request):
         raise HTTPException(
             status_code=404,
             detail="Blog not found"
-        )
-
-    if (
-        existing_blog["author_id"] != user["id"]
-        and user["role"] != "admin"
-    ):
-        raise HTTPException(
-            status_code=403,
-            detail="You cannot delete this blog"
         )
 
     blogs_collection.delete_one({

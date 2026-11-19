@@ -4,3 +4,5 @@ __pycache__/
 .env
 .vscode/
 reset_admin_password.py
+
+app_backup/

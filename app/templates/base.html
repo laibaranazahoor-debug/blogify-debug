@@ -23,13 +23,17 @@
             <a href="/blogs" class="nav-link">▤ <span>All Blogs</span></a>
             <a href="/categories" class="nav-link">◈ <span>Categories</span></a>
 
-            {% if user %}
+            {% if can_create %}
             <a href="/blogs/new" class="nav-link">＋ <span>Create Blog</span></a>
             {% endif %}
 
+            {% if user and (is_admin or is_moderator) %}
+            <div class="side-label admin-label">MANAGEMENT</div>
+            <a href="/dashboard" class="nav-link">▣ <span>Dashboard</span></a>
+            {% endif %}
+
             {% if is_admin %}
-            <div class="side-label admin-label">ADMINISTRATION</div>
-            <a href="/dashboard" class="nav-link">▦ <span>Dashboard</span></a>
+            <a href="/admin/users" class="nav-link">♙ <span>Manage Users</span></a>
             {% endif %}
         </nav>
 
@@ -52,10 +56,12 @@
             <div class="topbar-title">Your creative space</div>
             <div class="topbar-actions">
                 <span class="status-pill"><span class="status-dot"></span> System online</span>
+
                 {% if user %}
                     <div class="user-chip">
                         <span class="avatar">{{ user.name[:1]|upper }}</span>
                         <span>{{ user.name }}</span>
+                        <span class="role-label">{{ user.role|capitalize }}</span>
                     </div>
                     <a href="/logout" class="button button-ghost button-small">Logout</a>
                 {% else %}
